@@ -12,6 +12,8 @@ Licenses: https://creativecommons.org/licenses/by/4.0/ and https://creativecommo
 - "Saw cutting wood moderate.wav" by lungimahlaresound (CC BY 3.0) freesound.org/s/445551
 - "Thunder Clap 1" by jzielke011 (CC BY 4.0) freesound.org/s/338091
 - "Waterfall, Large, A.wav" by InspectorJ (CC BY 4.0) freesound.org/s/335992
+- "Whoosh+Sword_Hit Armor.wav" by marb7e (CC BY 4.0) freesound.org/s/620355
+- "Zombie (Or Monster Or Lion) Roar" by zglar (CC BY 3.0) freesound.org/s/232289
 - "body-fall-5.wav" by CosmicEmbers (CC BY 3.0) freesound.org/s/160742
 - "pigeon dove cooing singing sound effect" by Garuda1982 (CC BY 4.0) freesound.org/s/556323
 - "sheep bleats 02 160830_0957.wav" by klankbeeld (CC BY 4.0) freesound.org/s/360547

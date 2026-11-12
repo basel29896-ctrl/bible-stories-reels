@@ -81,7 +81,8 @@ def next_post(posts, state):
 def publish(ig, post):
     url = f"{VIDEO_BASE}/ep{post['episode']}.mp4"
     cid = api("POST", f"{ig}/media", {"media_type": "REELS", "video_url": url,
-                                     "caption": post["caption"], "share_to_feed": "true"})["id"]
+                                     "caption": post["caption"], "share_to_feed": "true",
+                                     "thumb_offset": "2500"})["id"]  # cover = episode title card, not the dark opening frame
     log(f"ep{post['episode']}: container {cid} from {url}")
     for _ in range(40):  # up to ~20 min of processing
         time.sleep(30)

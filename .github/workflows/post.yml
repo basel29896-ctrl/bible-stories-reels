@@ -1,0 +1,42 @@
+name: Post next episode
+
+on:
+  schedule:
+    # 00:00 UTC = 7 PM New York (8 PM during US daylight time), 4 PM Los Angeles.
+    # Runs daily; post.py only posts when the last post is >= 40 h old, so one post every 2 days.
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Post now even if the last post was under 40 hours ago"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Post
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+        run: python post.py ${{ inputs.force && '--force' || '' }}
+      - name: Save state
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add state.json post.log 2>/dev/null || true
+          git diff --cached --quiet || (git commit -m "chore: record post" && git push)

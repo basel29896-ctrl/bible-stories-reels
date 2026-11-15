@@ -1,7 +1,7 @@
 """Post the next unposted episode from posts.json to Instagram as a Reel (official Graph API, free).
 
 The videos are hosted in this repo's GitHub release "videos" as epNN.mp4; Instagram fetches them by URL.
-Runs daily from GitHub Actions (.github/workflows/post.yml); posts only when the last post is >= MIN_GAP_HOURS old,
+Runs daily from GitHub Actions (.github/workflows/post.yml); posts only when the last post was >= MIN_GAP_DAYS UTC calendar days ago,
 which gives one post every 2 days.
 
 Usage:
@@ -13,7 +13,7 @@ Usage:
 Credentials: env IG_USER_ID / IG_TOKEN (GitHub Secrets), else config.json next to this file.
 """
 import json, os, sys, time, urllib.error, urllib.parse, urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 CONFIG = os.path.join(HERE, "config.json")
@@ -22,7 +22,9 @@ STATE = os.path.join(HERE, "state.json")
 LOG = os.path.join(HERE, "post.log")
 API_VERSION = "v27.0"
 VIDEO_BASE = "https://github.com/basel29896-ctrl/bible-stories-reels/releases/download/videos"
-MIN_GAP_HOURS = 40  # runs daily; this makes it every 2 days and stops a late run from posting twice in a row
+# Counted in UTC calendar days, not hours, so a manual post outside the 00-03 UTC window does not push the
+# next post back a day. Runs after a post on the same day see 0 days and skip, so it never posts twice.
+MIN_GAP_DAYS = 2
 
 
 def now():
@@ -125,8 +127,8 @@ def main():
         return
     if state["posted"] and "--force" not in args:
         last = datetime.fromisoformat(state["posted"][-1]["at"])
-        if now() - last < timedelta(hours=MIN_GAP_HOURS):
-            print(f"skip: last post {last:%Y-%m-%d %H:%M} UTC is under {MIN_GAP_HOURS} h ago")
+        if (now().date() - last.astimezone(timezone.utc).date()).days < MIN_GAP_DAYS:
+            print(f"skip: last post {last:%Y-%m-%d %H:%M} UTC is under {MIN_GAP_DAYS} days ago")
             return
 
     try:

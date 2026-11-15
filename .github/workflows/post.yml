@@ -4,14 +4,14 @@ on:
   schedule:
     # 00:12 UTC = 7:12 PM New York (8:12 PM during US daylight time), 4:12 PM Los Angeles.
     # GitHub may delay or drop scheduled runs, so it tries every 30 min until 03:12 UTC (10:12 PM New York).
-    # post.py only posts when the last post is >= 40 h old, so the first run that gets through posts and
+    # post.py only posts when the last post was >= 2 UTC days ago, so the first run that gets through posts and
     # the rest skip: one post every 2 days.
     - cron: "12,42 0,1,2 * * *"
     - cron: "12 3 * * *"
   workflow_dispatch:
     inputs:
       force:
-        description: "Post now even if the last post was under 40 hours ago"
+        description: "Post now even if the last post was under 2 days ago"
         type: boolean
         default: false
 

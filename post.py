@@ -25,6 +25,7 @@ VIDEO_BASE = "https://github.com/basel29896-ctrl/bible-stories-reels/releases/do
 # Counted in UTC calendar days, not hours, so a manual post outside the 00-03 UTC window does not push the
 # next post back a day. Runs after a post on the same day see 0 days and skip, so it never posts twice.
 MIN_GAP_DAYS = 2
+POST_WINDOW_END_UTC = 4  # GitHub sometimes runs schedules hours late; don't post at odd hours
 
 
 def now():
@@ -124,6 +125,9 @@ def main():
 
     if post is None:
         log("all episodes posted; nothing to do")
+        return
+    if "--force" not in args and now().hour >= POST_WINDOW_END_UTC:
+        print(f"skip: outside the 00:00-{POST_WINDOW_END_UTC:02d}:00 UTC posting window (late GitHub run)")
         return
     if state["posted"] and "--force" not in args:
         last = datetime.fromisoformat(state["posted"][-1]["at"])

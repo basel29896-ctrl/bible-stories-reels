@@ -8,6 +8,8 @@ on:
     # the rest skip: one post every 2 days.
     - cron: "12,42 0,1,2 * * *"
     - cron: "12 3 * * *"
+    # one-off: ep03 trial at 3:00 AM Jordan (00:00 UTC) on 2026-11-16; state.json next_at allows it
+    - cron: "0 0 16 11 *"
   workflow_dispatch:
     inputs:
       force:

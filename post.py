@@ -126,10 +126,17 @@ def main():
     if post is None:
         log("all episodes posted; nothing to do")
         return
-    if "--force" not in args and now().hour >= POST_WINDOW_END_UTC:
+    # One-off override: state.json "next_at" (ISO UTC) lets the next post go out at/after that time,
+    # ignoring the 2-day gap. It is removed once a post at/after that time succeeds.
+    next_at = datetime.fromisoformat(state["next_at"]) if state.get("next_at") else None
+    override = next_at is not None and now() >= next_at
+    if "--force" not in args and not override and now().hour >= POST_WINDOW_END_UTC:
         print(f"skip: outside the 00:00-{POST_WINDOW_END_UTC:02d}:00 UTC posting window (late GitHub run)")
         return
-    if state["posted"] and "--force" not in args:
+    if next_at and not override and "--force" not in args:
+        print(f"skip: next post scheduled for {next_at:%Y-%m-%d %H:%M} UTC")
+        return
+    if state["posted"] and "--force" not in args and not override:
         last = datetime.fromisoformat(state["posted"][-1]["at"])
         if (now().date() - last.astimezone(timezone.utc).date()).days < MIN_GAP_DAYS:
             print(f"skip: last post {last:%Y-%m-%d %H:%M} UTC is under {MIN_GAP_DAYS} days ago")
@@ -146,6 +153,8 @@ def main():
         log(f"ERROR ep{post['episode']}: {e}")
         sys.exit(1)
     state["posted"].append({"episode": post["episode"], "media_id": media_id, "at": now().isoformat(timespec="seconds")})
+    if override:
+        state.pop("next_at")
     save_state(state)
     log(f"posted ep{post['episode']} {post['title']} -> media {media_id}" + (" (found already on account)" if existing else ""))
 
